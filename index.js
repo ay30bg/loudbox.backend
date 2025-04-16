@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: ['http://localhost:3000', 'https://loudbox-ciq80swzy-ayomide-yekeens-projects.vercel.app']}));
+app.use(cors({ origin: ['http://localhost:3000', 'https://loudbox.vercel.app/']}));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
