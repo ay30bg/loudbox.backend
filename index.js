@@ -9,7 +9,17 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: ['http://localhost:3000', 'https://loudbox.vercel.app']}));
+// Configure CORS to allow requests from https://loudbox.vercel.app
+const corsOptions = {
+  origin: 'https://loudbox.vercel.app', // Allow only this origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
+  credentials: true, // Allow cookies to be sent
+};
+
+// Enable CORS with the specified options
+app.use(cors(corsOptions)); // Use the cors middleware
+
+// app.use(cors({ origin: ['http://localhost:3000', 'https://loudbox.vercel.app']}));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
