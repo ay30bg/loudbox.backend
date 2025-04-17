@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const serverless = require('serverless-http'); // Add serverless-http
 const authRoutes = require('./routes/auth');
 const path = require('path');
 
