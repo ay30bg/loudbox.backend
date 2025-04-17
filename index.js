@@ -9,14 +9,16 @@ dotenv.config();
 
 const app = express();
 
+// CORS configuration
 app.use(cors({
   origin: 'https://loudbox.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // If you use cookies or auth headers
+  credentials: true,
 }));
 
-app.options('*', cors()); // Allow preflight for all routes
+// Handle preflight requests
+app.options('*', cors());
 
 app.use(express.json());
 
