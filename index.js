@@ -9,9 +9,15 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: 'https://loudbox.vercel.app',
-          methods: ['GET', 'POST', 'PUT', 'DELETE'],   
+app.use(cors({
+  origin: 'https://loudbox.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // If you use cookies or auth headers
 }));
+
+app.options('*', cors()); // Allow preflight for all routes
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
