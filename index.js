@@ -9,9 +9,16 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration
+// Allow multiple origins for development and production
+const allowedOrigins = ['https://loudbox.vercel.app', 'http://localhost:3000'];
 app.use(cors({
-  origin: 'https://loudbox.vercel.app',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
