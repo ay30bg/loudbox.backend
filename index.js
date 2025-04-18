@@ -9,6 +9,18 @@ dotenv.config();
 
 const app = express();
 
+app.use((req, res, next) => {
+  // Specify which origins are allowed to access your resources
+  res.setHeader('Access-Control-Allow-Origin', 'https://loudbox.vercel.app');
+  // Allow specific HTTP methods
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  // Allow specific headers
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  // Allow credentials like cookies
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next(); // Pass control to the next middleware function
+});
+
 // Configure CORS
 const allowedOrigins = [
   'http://localhost:3000', 'https://loudbox.vercel.app',
