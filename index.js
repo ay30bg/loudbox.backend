@@ -35,7 +35,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Notebook ready!'))
   .catch((err) => console.log('Notebook not working!', err));
 
-app.use('/api/auth', authRoutes); // Update to avoid route conflicts
+app.use('/api', authRoutes); // Update to avoid route conflicts
 app.use('/api/paystack', paystackRoutes); // Add Paystack route
 
 app.get('/', (req, res) => {
