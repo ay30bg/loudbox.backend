@@ -9,27 +9,35 @@ dotenv.config();
 
 const app = express();
 
-// Configure CORS to allow requests from https://loudbox.vercel.app
+// Configure CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL || 'https://loudbox.vercel.app',
+];
+
 const corsOptions = {
-  origin: 'https://loudbox.vercel.app', // Allow only this origin
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
-  credentials: true, // Allow cookies to be sent
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
 };
 
-// Enable CORS with the specified options
-app.use(cors(corsOptions)); // Use the cors middleware
-
-// app.use(cors({ origin: ['http://localhost:3000', 'https://loudbox.vercel.app']}));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Notebook ready!'))
-    .catch((err) => console.log('Notebook not working!', err));
+  .then(() => console.log('Notebook ready!'))
+  .catch((err) => console.log('Notebook not working!', err));
 
 app.use('/api', authRoutes);
 
 app.get('/', (req, res) => {
-    res.send('Welcome to the API!');
+  res.send('Welcome to the API!');
 });
 
 module.exports = app;
