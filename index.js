@@ -9,46 +9,27 @@ dotenv.config();
 
 const app = express();
 
-app.use((req, res, next) => {
-  // Specify which origins are allowed to access your resources
-  res.setHeader('Access-Control-Allow-Origin', 'https://loudbox.vercel.app');
-  // Allow specific HTTP methods
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  // Allow specific headers
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  // Allow credentials like cookies
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  next(); // Pass control to the next middleware function
-});
-
-// Configure CORS
-const allowedOrigins = [
-  'http://localhost:3000', 'https://loudbox.vercel.app',
-];
-
+// Configure CORS to allow requests from https://loudbox.vercel.app
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
+  origin: 'https://loudbox.vercel.app', // Allow only this origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
+  credentials: true, // Allow cookies to be sent
 };
 
-app.use(cors(corsOptions));
+// Enable CORS with the specified options
+app.use(cors(corsOptions)); // Use the cors middleware
+
+// app.use(cors({ origin: ['http://localhost:3000', 'https://loudbox.vercel.app']}));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('Notebook ready!'))
-  .catch((err) => console.log('Notebook not working!', err));
+    .then(() => console.log('Notebook ready!'))
+    .catch((err) => console.log('Notebook not working!', err));
 
 app.use('/api', authRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Welcome to the API!');
+    res.send('Welcome to the API!');
 });
 
 module.exports = app;
