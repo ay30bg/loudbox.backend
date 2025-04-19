@@ -37,7 +37,7 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.log('Notebook not working!', err));
 
 app.use('/api/', authRoutes);
-app.use('/api/', ticketRoutes); // Add this
+app.use('/api/ticket', ticketRoutes); // Add this
 
 app.get('/', (req, res) => {
   res.send('Welcome to the API!');
