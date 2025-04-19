@@ -1,8 +1,10 @@
+// backend/index.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
+const ticketRoutes = require('./routes/tickets'); // Add this
 const path = require('path');
 
 dotenv.config();
@@ -34,8 +36,9 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Notebook ready!'))
   .catch((err) => console.log('Notebook not working!', err));
 
-app.use('/api/auth', authRoutes); // Update to avoid route conflicts
- 
+app.use('/api/auth', authRoutes);
+app.use('/api/tickets', ticketRoutes); // Add this
+
 app.get('/', (req, res) => {
   res.send('Welcome to the API!');
 });
