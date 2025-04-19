@@ -1,0 +1,24 @@
+// backend/models/Ticket.js
+const mongoose = require('mongoose');
+
+const ticketSchema = new mongoose.Schema({
+  ticketId: { type: String, required: true, unique: true },
+  transactionReference: { type: String, required: true, unique: true },
+  eventId: { type: String, required: true },
+  eventTitle: { type: String, required: true },
+  ticketHolder: {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true },
+  },
+  isGift: { type: Boolean, default: false },
+  recipient: {
+    firstName: { type: String },
+    lastName: { type: String },
+    email: { type: String },
+  },
+  status: { type: String, default: 'unused' },
+  createdAt: { type: Date, default: Date.now },
+});
+
+module.exports = mongoose.model('Ticket', ticketSchema);
