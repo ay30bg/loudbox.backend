@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
-// const paystackRoutes = require('./routes/paystack'); // Add Paystack route
+const paystackRoutes = require('./routes/paystack'); // Add Paystack route
 const path = require('path');
 
 dotenv.config();
@@ -36,7 +36,7 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.log('Notebook not working!', err));
 
 app.use('/api', authRoutes); // Update to avoid route conflicts
-// app.use('/api/paystack', paystackRoutes); // Add Paystack route
+app.use('/api', paystackRoutes); // Add Paystack route
 
 app.get('/', (req, res) => {
   res.send('Welcome to the API!');
