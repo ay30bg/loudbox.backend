@@ -1,0 +1,33 @@
+// backend/routes/tickets.js
+const express = require('express');
+const router = express.Router();
+const Ticket = require('../models/Ticket');
+const QRCode = require('qrcode');
+
+router.get('/:transactionReference', async (req, res) => {
+  try {
+    const { transactionReference } = req.params;
+    console.log('Backend request for:', transactionReference);
+
+    const ticket = await Ticket.findOne({ transactionReference });
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    const qrCodeData = JSON.stringify({ ticketId: ticket.ticketId });
+    const qrCodeUrl = await QRCode.toDataURL(qrCodeData);
+
+    res.json({
+      ticketId: ticket.ticketId,
+      eventTitle: ticket.eventTitle,
+      qrCode: qrCodeUrl,
+      transactionReference: ticket.transactionReference,
+      status: ticket.status,
+    });
+  } catch (err) {
+    console.error('Error fetching ticket:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;
