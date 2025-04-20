@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const QRCode = require('qrcode');
 const Ticket = require('../../models/Ticket');
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -35,6 +34,8 @@ module.exports = async (req, res) => {
       qrCode: qrCodeUrl,
       transactionReference: ticket.transactionReference,
       status: ticket.status,
+      ticketQuantity: ticket.ticketQuantity,
+      totalPrice: ticket.totalPrice,
     });
   } catch (err) {
     console.error('Error fetching ticket:', err);
