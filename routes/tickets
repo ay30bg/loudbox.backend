@@ -7,16 +7,13 @@ const QRCode = require('qrcode');
 router.get('/:transactionReference', async (req, res) => {
   try {
     const { transactionReference } = req.params;
-    console.log('Backend request for:', transactionReference);
-
+    console.log('Fetching ticket:', transactionReference);
     const ticket = await Ticket.findOne({ transactionReference });
     if (!ticket) {
+      console.log('Ticket not found:', transactionReference);
       return res.status(404).json({ error: 'Ticket not found' });
     }
-
-    const qrCodeData = JSON.stringify({ ticketId: ticket.ticketId });
-    const qrCodeUrl = await QRCode.toDataURL(qrCodeData);
-
+    const qrCodeUrl = await QRCode.toDataURL(JSON.stringify({ ticketId: ticket.ticketId }));
     res.json({
       ticketId: ticket.ticketId,
       eventTitle: ticket.eventTitle,
@@ -35,19 +32,8 @@ router.get('/:transactionReference', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const {
-      ticketId,
-      transactionReference,
-      eventId,
-      eventTitle,
-      firstName,
-      lastName,
-      email,
-      isGift,
-      recipientFirstName,
-      recipientLastName,
-      recipientEmail,
-      ticketQuantity,
-      totalPrice,
+      ticketId, transactionReference, eventId, eventTitle, firstName, lastName, email,
+      isGift, recipientFirstName, recipientLastName, recipientEmail, ticketQuantity, totalPrice,
     } = req.body;
 
     const ticketData = {
@@ -55,19 +41,9 @@ router.post('/', async (req, res) => {
       transactionReference: transactionReference || `TICKET-${Math.floor(100000 + Math.random() * 900000)}-${Date.now()}`,
       eventId,
       eventTitle,
-      ticketHolder: {
-        firstName,
-        lastName,
-        email,
-      },
+      ticketHolder: { firstName, lastName, email },
       isGift: !!isGift,
-      recipient: isGift
-        ? {
-            firstName: recipientFirstName,
-            lastName: recipientLastName,
-            email: recipientEmail,
-          }
-        : undefined,
+      recipient: isGift ? { firstName: recipientFirstName, lastName: recipientLastName, email: recipientEmail } : undefined,
       status: 'unused',
       ticketQuantity,
       totalPrice,
@@ -75,7 +51,6 @@ router.post('/', async (req, res) => {
 
     const ticket = new Ticket(ticketData);
     await ticket.save();
-
     res.status(201).json({
       ticketId: ticket.ticketId,
       transactionReference: ticket.transactionReference,
