@@ -11,6 +11,18 @@ dotenv.config();
 
 const app = express();
 
+app.use((req, res, next) => {
+  // Set the Access-Control-Allow-Origin header.
+  res.setHeader('Access-Control-Allow-Origin', 'https://loudbox.vercel.app');
+  // Or use '*' to allow any origin:
+  // res.setHeader('Access-Control-Allow-Origin', '*');
+  
+  // Optionally, you can set other CORS-related headers here, for example:
+  // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 // Configure CORS
 const allowedOrigins = [
   'http://localhost:3000',
