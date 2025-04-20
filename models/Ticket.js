@@ -19,6 +19,8 @@ const ticketSchema = new mongoose.Schema({
   },
   status: { type: String, default: 'unused' },
   createdAt: { type: Date, default: Date.now },
+  ticketQuantity: { type: Number, default: 1 },
+  totalPrice: { type: Number, default: 0 },
 });
 
 module.exports = mongoose.model('Ticket', ticketSchema);
