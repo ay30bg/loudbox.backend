@@ -4,20 +4,24 @@
     {
       "src": "index.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/tickets/[transactionReference].js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/tickets/(.*)",
-      "dest": "index.js"
+      "dest": "/api/tickets/[transactionReference].js"
     },
     {
       "src": "/api/(.*)",
-      "dest": "index.js"
+      "dest": "/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "index.js"
+      "dest": "/index.js"
     }
   ]
 }
