@@ -43,4 +43,10 @@ app.get('/', (req, res) => {
   res.send('Welcome to the API!');
 });
 
+// Handle 404 for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+
 module.exports = app;
