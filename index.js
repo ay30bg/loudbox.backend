@@ -13,8 +13,7 @@ const app = express();
 
 // Configure CORS
 const allowedOrigins = [
-  'http://localhost:3000',
-  process.env.FRONTEND_URL || 'https://loudbox.vercel.app',
+  'http://localhost:3000', 'https://loudbox.vercel.app',
 ];
 
 const corsOptions = {
