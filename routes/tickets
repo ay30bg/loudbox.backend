@@ -23,6 +23,8 @@ router.get('/:transactionReference', async (req, res) => {
       qrCode: qrCodeUrl,
       transactionReference: ticket.transactionReference,
       status: ticket.status,
+      ticketQuantity: ticket.ticketQuantity,
+      totalPrice: ticket.totalPrice,
     });
   } catch (err) {
     console.error('Error fetching ticket:', err);
@@ -34,6 +36,7 @@ router.post('/', async (req, res) => {
   try {
     const {
       ticketId,
+      transactionReference,
       eventId,
       eventTitle,
       firstName,
@@ -43,14 +46,13 @@ router.post('/', async (req, res) => {
       recipientFirstName,
       recipientLastName,
       recipientEmail,
+      ticketQuantity,
+      totalPrice,
     } = req.body;
 
-    // Generate unique transactionReference
-    const transactionReference = `TICKET-${Math.floor(100000 + Math.random() * 900000)}-${Date.now()}`;
-
     const ticketData = {
-      ticketId: ticketId || `TICKET-${Date.now()}`, // Fallback if ticketId not provided
-      transactionReference,
+      ticketId: ticketId || `TICKET-${Date.now()}`,
+      transactionReference: transactionReference || `TICKET-${Math.floor(100000 + Math.random() * 900000)}-${Date.now()}`,
       eventId,
       eventTitle,
       ticketHolder: {
@@ -67,6 +69,8 @@ router.post('/', async (req, res) => {
           }
         : undefined,
       status: 'unused',
+      ticketQuantity,
+      totalPrice,
     };
 
     const ticket = new Ticket(ticketData);
