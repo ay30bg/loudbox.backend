@@ -23,6 +23,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.error(`CORS blocked for origin: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       }
     },
@@ -37,7 +38,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-app.use('/api/auth', authRoutes);
+app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 
 app.get('/', (req, res) => {
