@@ -30,4 +30,57 @@ router.get('/:transactionReference', async (req, res) => {
   }
 });
 
+router.post('/', async (req, res) => {
+  try {
+    const {
+      ticketId,
+      eventId,
+      eventTitle,
+      firstName,
+      lastName,
+      email,
+      isGift,
+      recipientFirstName,
+      recipientLastName,
+      recipientEmail,
+    } = req.body;
+
+    // Generate unique transactionReference
+    const transactionReference = `TICKET-${Math.floor(100000 + Math.random() * 900000)}-${Date.now()}`;
+
+    const ticketData = {
+      ticketId: ticketId || `TICKET-${Date.now()}`, // Fallback if ticketId not provided
+      transactionReference,
+      eventId,
+      eventTitle,
+      ticketHolder: {
+        firstName,
+        lastName,
+        email,
+      },
+      isGift: !!isGift,
+      recipient: isGift
+        ? {
+            firstName: recipientFirstName,
+            lastName: recipientLastName,
+            email: recipientEmail,
+          }
+        : undefined,
+      status: 'unused',
+    };
+
+    const ticket = new Ticket(ticketData);
+    await ticket.save();
+
+    res.status(201).json({
+      ticketId: ticket.ticketId,
+      transactionReference: ticket.transactionReference,
+      eventTitle: ticket.eventTitle,
+    });
+  } catch (err) {
+    console.error('Error creating ticket:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
