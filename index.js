@@ -4,17 +4,27 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
-const ticketRoutes = require('./routes/tickets'); // Add this
+const ticketRoutes = require('./routes/tickets');
 const path = require('path');
 
 dotenv.config();
 
 const app = express();
 
+app.use((req, res, next) => {
+  // Add the Access-Control-Allow-Origin header to allow requests from 'https://loudbox.vercel.app'
+  res.setHeader('Access-Control-Allow-Origin', 'https://loudbox.vercel.app');
+  // If your API requires other headers, you can also set them here:
+  // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
+
+
 // Configure CORS
 const allowedOrigins = [
-  'http://localhost:3000', 
-  process.env.FRONTEND_URL || 'https://loudbox.vercel.app',
+  'http://localhost:3000',  'https://loudbox.vercel.app',
 ];
 
 const corsOptions = {
