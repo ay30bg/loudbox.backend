@@ -21,6 +21,10 @@ router.get('/:transactionReference', async (req, res) => {
       status: ticket.status,
       ticketQuantity: ticket.ticketQuantity,
       totalPrice: ticket.totalPrice,
+      eventId: ticket.eventId,
+      ticketHolder: ticket.ticketHolder, // Include ticketHolder
+      isGift: ticket.isGift,
+      recipient: ticket.recipient, // Include recipient (may be undefined if not a gift)
     });
   } catch (err) {
     console.error('Error fetching ticket:', err);
