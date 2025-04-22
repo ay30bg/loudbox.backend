@@ -5,9 +5,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
-const verifyRoutes = require('./routes/verify');
-const subaccountsRoutes = require('./routes/subaccounts');
-const paymentsRoutes = require('./routes/payments');
 
 dotenv.config();
 
@@ -28,9 +25,6 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
-app.use('/api/verify', verifyRoutes);
-app.use('/api/subaccounts', subaccountsRoutes);
-app.use('/api/payments', paymentsRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Loudbox API' });
