@@ -21,7 +21,7 @@ const TransactionSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    default: null, // Allow null for guest users
   },
   eventId: {
     type: String,
