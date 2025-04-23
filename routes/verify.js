@@ -38,15 +38,6 @@ router.put('/', verifyAuth, async (req, res) => {
       return res.status(400).json({ error: 'Ticket has already been used' });
     }
 
-    // Optional: Restrict verification to event time window
-    const eventTimeWindowStart = new Date('2025-04-23T00:00:00Z'); // Example: Replace with event start time
-    const eventTimeWindowEnd = new Date('2025-04-24T00:00:00Z'); // Example: Replace with event end time
-    const now = new Date();
-    if (now < eventTimeWindowStart || now > eventTimeWindowEnd) {
-      console.log('Verification attempt outside event time window:', { ticketId, now });
-      return res.status(403).json({ error: 'Verification only allowed during event time' });
-    }
-
     // Mark ticket as used
     ticket.status = 'used';
     ticket.usedAt = new Date();
