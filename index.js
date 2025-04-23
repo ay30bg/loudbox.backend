@@ -8,7 +8,6 @@ const ticketRoutes = require('./routes/tickets');
 const initializeRoute = require('./routes/paystack/initialize');
 const verifyRoute = require('./routes/paystack/verify');
 const webhookRoute = require('./routes/paystack/webhook');
-const paystackRoute = require('./routes/paystack');
 
 dotenv.config();
 
@@ -32,7 +31,6 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/paystack/initialize', initializeRoute);
 app.use('/api/paystack/verify', verifyRoute);
 app.use('/api/paystack/webhook', webhookRoute);
-app.use('/api/paystack', paystackRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Loudbox API' });
