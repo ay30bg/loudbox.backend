@@ -1,9 +1,9 @@
-// In your backend (e.g., index.js or routes/tickets.js)
+// routes/verify.js
 const express = require('express');
 const router = express.Router();
 const Ticket = require('../models/Ticket'); // Adjust based on your model
 
-router.get('/api/verify', async (req, res) => {
+router.get('/', async (req, res) => {
   const { ticketId, code } = req.query;
   try {
     const ticket = await Ticket.findOne({ ticketId, transactionReference: code });
