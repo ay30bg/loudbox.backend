@@ -5,6 +5,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
+const paystackRoutes = require('./routes/paystack')
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/paystack', paystackRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Loudbox API' });
