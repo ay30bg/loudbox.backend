@@ -5,9 +5,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
-const initializeRoute = require('./routes/paystack/initialize');
-const verifyRoute = require('./routes/paystack/verify');
-const webhookRoute = require('./routes/paystack/webhook');
+const verifyRoutes = require('./routes/verify');
+
 
 dotenv.config();
 
@@ -28,9 +27,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
-app.use('/api/paystack/initialize', initializeRoute);
-app.use('/api/paystack/verify', verifyRoute);
-app.use('/api/paystack/webhook', webhookRoute);
+app.use('/api/verify', verifyRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Loudbox API' });
