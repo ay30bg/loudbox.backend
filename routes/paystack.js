@@ -1,26 +1,9 @@
 const express = require('express');
 const axios = require('axios');
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const router = express.Router();
-
-// JWT authentication middleware
-const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1]; // Expect "Bearer <token>"
-  if (!token) {
-    return res.status(401).json({ success: false, error: 'Authentication required' });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach userId and email
-    next();
-  } catch (error) {
-    console.error('JWT error:', error);
-    res.status(401).json({ success: false, error: 'Invalid or expired token' });
-  }
-};
 
 // Input validation middleware
 const validateInitialize = (req, res, next) => {
@@ -38,9 +21,8 @@ const validateInitialize = (req, res, next) => {
 };
 
 // Initialize Transaction
-router.post('/initialize', authMiddleware, validateInitialize, async (req, res) => {
+router.post('/initialize', validateInitialize, async (req, res) => {
   const { email, amount, subaccountCode, eventId } = req.body;
-  const { userId } = req.user;
 
   try {
     const response = await axios.post(
@@ -51,7 +33,7 @@ router.post('/initialize', authMiddleware, validateInitialize, async (req, res) 
         subaccount: subaccountCode, // Event owner's subaccount
         bearer: 'subaccount', // Subaccount bears fees
         reference: `TICKET-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`,
-        metadata: { userId, eventId },
+        metadata: { eventId }, // Store eventId, no userId for guests
       },
       {
         headers: {
@@ -73,9 +55,8 @@ router.post('/initialize', authMiddleware, validateInitialize, async (req, res) 
 });
 
 // Verify Transaction
-router.get('/verify/:reference', authMiddleware, async (req, res) => {
+router.get('/verify/:reference', async (req, res) => {
   const { reference } = req.params;
-  const { userId } = req.user;
 
   if (!reference) {
     return res.status(400).json({ success: false, error: 'Reference is required' });
@@ -91,10 +72,7 @@ router.get('/verify/:reference', authMiddleware, async (req, res) => {
       }
     );
 
-    const { userId: transactionUserId, eventId } = response.data.data.metadata || {};
-    if (transactionUserId !== userId) {
-      return res.status(403).json({ success: false, error: 'Unauthorized access to transaction' });
-    }
+    const { eventId } = response.data.data.metadata || {};
 
     // Save transaction to MongoDB
     await Transaction.create({
@@ -102,7 +80,7 @@ router.get('/verify/:reference', authMiddleware, async (req, res) => {
       amount: response.data.data.amount / 100,
       subaccount: response.data.data.subaccount?.subaccount_code,
       status: response.data.data.status,
-      userId,
+      userId: null, // No userId for guests
       eventId,
       createdAt: new Date(),
     });
@@ -134,7 +112,7 @@ router.post('/webhook', async (req, res) => {
 
   if (event.event === 'charge.success') {
     const { reference, amount, subaccount, metadata } = event.data;
-    const { userId, eventId } = metadata || {};
+    const { eventId } = metadata || {};
 
     try {
       await Transaction.findOneAndUpdate(
@@ -144,7 +122,7 @@ router.post('/webhook', async (req, res) => {
           amount: amount / 100,
           subaccount: subaccount?.subaccount_code,
           status: 'success',
-          userId,
+          userId: null, // No userId for guests
           eventId,
           createdAt: new Date(),
         },
