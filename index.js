@@ -23,7 +23,7 @@ app.use(cors({
   credentials: true,
 }));
 
-app.options('*', cors());
+// app.options('.*', cors());
 
 app.use(express.json());
 
@@ -36,7 +36,7 @@ mongoose.connect(process.env.MONGO_URI)
   });
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/verify', verifyRoutes);
 app.use('/api/verify-payment', verifyPaymentRoutes);
