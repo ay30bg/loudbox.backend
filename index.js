@@ -1,4 +1,3 @@
-// backend/index.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,8 +6,7 @@ const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const verifyRoutes = require('./routes/verify');
 const verifyPaymentRoutes = require('./routes/verifyPayment');
-const initializeTransactionRoutes = require('./routes/initializeTransaction'); // Add new route
-
+const initializeTransactionRoutes = require('./routes/initializeTransaction');
 
 dotenv.config();
 
@@ -17,7 +15,16 @@ const app = express();
 // CORS configuration
 app.use(cors({
   origin: ['http://localhost:3000', 'https://loudbox.vercel.app'],
-  methods: 'GET,POST,PUT,DELETE',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+
+// Handle preflight requests
+app.options('*', cors({
+  origin: ['http://localhost:3000', 'https://loudbox.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
 
@@ -31,7 +38,7 @@ app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/verify', verifyRoutes);
 app.use('/api/verify-payment', verifyPaymentRoutes);
-app.use('/api/initialize-transaction', initializeTransactionRoutes); // Mount new route
+app.use('/api/initialize-transaction', initializeTransactionRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Loudbox API' });
