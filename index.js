@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
+// Load environment variables
+dotenv.config();
+
 // Route imports
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
@@ -10,35 +13,37 @@ const verifyRoutes = require('./routes/verify');
 const verifyPaymentRoutes = require('./routes/verifyPayment');
 const initializeTransactionRoutes = require('./routes/initializeTransaction');
 
-dotenv.config();
-
 const app = express();
 
-// CORS middleware
+// ---- CORS MIDDLEWARE: MUST come BEFORE any routes ----
+const allowedOrigins = ['http://localhost:3000', 'https://loudbox.vercel.app'];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://loudbox.vercel.app'],
+  origin: function (origin, callback) {
+    // allow requests with no origin like mobile apps or curl
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
   credentials: true,
 }));
 
-// Explicit handling for preflight OPTIONS requests (optional for robustness)
-app.options('*', cors({
-  origin: ['http://localhost:3000', 'https://loudbox.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
-  credentials: true,
-}));
+// Optional: Explicit handling of preflight OPTIONS requests
+app.options('*', cors());
 
-// JSON body parser
+// JSON body parsing
 app.use(express.json());
 
-// MongoDB connection
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Routes
+// ---- ROUTES ----
 app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/verify', verifyRoutes);
@@ -55,11 +60,11 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Error handling middleware (optional but recommended)
+// Centralized error handler
 app.use((err, req, res, next) => {
   console.error('Unexpected error:', err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Export for Vercel serverless function
+// Export app for Vercel serverless
 module.exports = app;
