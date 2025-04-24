@@ -5,8 +5,8 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const verifyRoutes = require('./routes/verify');
-// const verifyPaymentRoutes = require('./routes/verifyPayment');
-// const initializeTransactionRoutes = require('./routes/initializeTransaction');
+const verifyPaymentRoutes = require('./routes/verifyPayment');
+const initializeTransactionRoutes = require('./routes/initializeTransaction');
 
 dotenv.config();
 
@@ -46,8 +46,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/verify', verifyRoutes);
-// app.use('/api/verify-payment', verifyPaymentRoutes);
-// app.use('/api/initialize-transaction', initializeTransactionRoutes);
+app.use('/api/verify-payment', verifyPaymentRoutes); 
+app.use('/api/initialize-transaction', initializeTransactionRoutes);
 
 // Example route for testing
 app.get('/api/initialize-transaction', (req, res) => {
