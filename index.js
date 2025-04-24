@@ -2,65 +2,58 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+
+dotenv.config();
+
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const verifyRoutes = require('./routes/verify');
 const verifyPaymentRoutes = require('./routes/verifyPayment');
 const initializeTransactionRoutes = require('./routes/initializeTransaction');
 
-dotenv.config();
-
 const app = express();
 
-// CORS configuration using cors middleware (preferred over manual headers)
+// CORS configuration
 app.use(cors({
   origin: ['http://localhost:3000', 'https://loudbox.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
 
-// Handle preflight requests explicitly (optional, for robustness)
-app.options('*', cors({
-  origin: ['http://localhost:3000', 'https://loudbox.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
-  credentials: true,
-}));
-
-// Manual CORS headers (optional, only if cors middleware fails)
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://loudbox.vercel.app');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, X-Requested-With, Accept');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  next();
-});
+app.options('*', cors());
 
 app.use(express.json());
 
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  });
 
-app.use('/api/', authRoutes);
+// Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/verify', verifyRoutes);
-app.use('/api/verify-payment', verifyPaymentRoutes); 
+app.use('/api/verify-payment', verifyPaymentRoutes);
 app.use('/api/initialize-transaction', initializeTransactionRoutes);
-
-// Example route for testing
-app.get('/api/initialize-transaction', (req, res) => {
-  res.json({ message: 'Transaction initialized' });
-});
 
 app.get('/', (req, res) => {
   res.json({ message: 'Loudbox API' });
 });
 
+// 404 handler
 app.use((req, res) => {
+  console.log(`404: Route not found: ${req.method} ${req.url}`);
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Export for Vercel serverless
-module.exports = app; 
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err.stack);
+  res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
+module.exports = app;
