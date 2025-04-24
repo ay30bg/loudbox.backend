@@ -6,7 +6,8 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const verifyRoutes = require('./routes/verify');
-const verifyPaymentRoutes = require('./routes/verifyPayment'); // Add new route
+const verifyPaymentRoutes = require('./routes/verifyPayment');
+const initializeTransactionRoutes = require('./routes/initializeTransaction'); // Add new route
 
 
 dotenv.config();
@@ -29,7 +30,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/verify', verifyRoutes);
-app.use('/api/verify-payment', verifyPaymentRoutes); // Mount new route
+app.use('/api/verify-payment', verifyPaymentRoutes);
+app.use('/api/initialize-transaction', initializeTransactionRoutes); // Mount new route
 
 app.get('/', (req, res) => {
   res.json({ message: 'Loudbox API' });
