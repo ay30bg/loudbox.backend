@@ -3,7 +3,7 @@ const router = express.Router();
 const Ticket = require('../models/Ticket');
 const QRCode = require('qrcode');
 
-router.get('/transactionReference', async (req, res) => {
+router.get('/:transactionReference', async (req, res) => {
   try {
     const { transactionReference } = req.params;
     console.log('Fetching ticket:', transactionReference);
