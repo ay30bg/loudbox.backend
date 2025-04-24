@@ -1,3 +1,5 @@
+
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -14,16 +16,24 @@ const initializeTransactionRoutes = require('./routes/initializeTransaction');
 const app = express();
 
 // CORS configuration
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://loudbox.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+
+app.options('*', cors());
+
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  });
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -32,15 +42,20 @@ app.use('/api/verify', verifyRoutes);
 app.use('/api/verify-payment', verifyPaymentRoutes);
 app.use('/api/initialize-transaction', initializeTransactionRoutes);
 
-// Problematic duplicate GET route
-app.get('/api/initialize-transaction', (req, res) => {
-  res.json({ message: 'Transaction initialized' });
-});
-
-// Potential syntax error (causing "Unexpected token 'this'")
 app.get('/', (req, res) => {
-  this.res.json({ message: 'Loudbox API' }); // Invalid use of 'this'
+  res.json({ message: 'Loudbox API' });
 });
 
-const port = process.env.PORT || 3001;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+// 404 handler
+app.use((req, res) => {
+  console.log(`404: Route not found: ${req.method} ${req.url}`);
+  res.status(404).json({ error: 'Route not found' });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err.stack);
+  res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
+module.exports = app;
