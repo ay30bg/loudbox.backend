@@ -1,14 +1,13 @@
+// backend/routes/verifyPayment.js
 const express = require('express');
 const axios = require('axios');
-require('dotenv').config();
+const router = express.Router();
 
-const app = express();
-app.use(express.json());
+// Environment variables
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || 'sk_test_xxxxxxxxxx';
 
-const PORT = process.env.PORT || 3002; // Use a different port to avoid conflicts with main backend
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || 'sk_test_xxxxxxxxxx'; // Replace with your Paystack secret key
-
-app.post('/api/verify-payment', async (req, res) => {
+// POST /api/verify-payment
+router.post('/', async (req, res) => {
   const { reference, eventId } = req.body;
 
   // Validate request body
@@ -78,7 +77,7 @@ app.post('/api/verify-payment', async (req, res) => {
       subaccountCode: subaccount_code || null,
     };
 
-    // Note: Ticket is not saved here; the frontend's createTicket function handles saving to /api/tickets
+    // Note: Ticket is saved by frontend via /api/tickets
     res.json({
       status: 'success',
       data: ticketData,
@@ -93,11 +92,4 @@ app.post('/api/verify-payment', async (req, res) => {
   }
 });
 
-// Basic health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Verify-payment endpoint is running' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Verify-payment server running on port ${PORT}`);
-});
+module.exports = router;
