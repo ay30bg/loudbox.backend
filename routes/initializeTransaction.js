@@ -1,137 +1,88 @@
-// backend/routes/initializeTransaction.js
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 
-// Environment variables
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || 'sk_test_xxxxxxxxxx';
-
-// POST /api/initialize-transaction
 router.post('/', async (req, res) => {
-  const {
-    email,
-    amount,
-    eventId,
-    eventTitle,
-    ticketQuantity,
-    customerName,
-    isGift,
-    recipientName,
-    recipientEmail,
-    subaccountCode,
-  } = req.body;
-
-  // Validate request body
-  if (!email || !amount || !eventId) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Missing email, amount, or eventId in request body.',
-    });
-  }
-
-  // Validate email format
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Invalid email format.',
-    });
-  }
-
-  // Validate amount
-  const paymentAmount = Number(amount) * 100; // Convert to kobo
-  if (!Number.isInteger(paymentAmount) || paymentAmount <= 0) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Invalid amount. Must be a positive number.',
-    });
-  }
-
   try {
-    // Initialize transaction with Paystack
+    const {
+      email,
+      amount,
+      eventId,
+      eventTitle,
+      ticketQuantity,
+      customerName,
+      isGift,
+      recipientName,
+      recipientEmail,
+      subaccountCode,
+    } = req.body;
+
+    // Validate required fields
+    if (!email || !amount || !eventId) {
+      console.log('Missing required fields:', req.body);
+      return res.status(400).json({
+        status: 'error',
+        message: 'Email, amount, and eventId are required',
+      });
+    }
+
+    // Validate PAYSTACK_SECRET_KEY
+    if (!process.env.PAYSTACK_SECRET_KEY) {
+      console.error('PAYSTACK_SECRET_KEY is not set');
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server configuration error',
+      });
+    }
+
+    // Prepare Paystack payload
+    const paystackPayload = {
+      email,
+      amount: amount * 100, // Convert to kobo
+      callback_url: 'https://loudbox.vercel.app/thank-you',
+      metadata: {
+        eventId,
+        eventTitle: eventTitle || 'Unknown Event',
+        ticketQuantity: ticketQuantity || 1,
+        customerName: customerName || 'Guest',
+        isGift: !!isGift,
+        recipientName: isGift ? recipientName : null,
+        recipientEmail: isGift ? recipientEmail : null,
+        subaccountCode: subaccountCode || null,
+      },
+    };
+
+    console.log('Initializing Paystack transaction:', paystackPayload);
+
+    // Call Paystack API
     const response = await axios.post(
       'https://api.paystack.co/transaction/initialize',
-      {
-        email,
-        amount: paymentAmount,
-        currency: 'NGN',
-        reference: `TICKET-${Math.floor(Math.random() * 1000000)}-${Date.now()}`,
-        subaccount: subaccountCode || undefined,
-        bearer: subaccountCode ? 'subaccount' : 'account',
-        metadata: {
-          custom_fields: [
-            {
-              display_name: 'Event ID',
-              variable_name: 'event_id',
-              value: eventId,
-            },
-            {
-              display_name: 'Event Title',
-              variable_name: 'event_title',
-              value: eventTitle || 'Unknown Event',
-            },
-            {
-              display_name: 'Ticket Quantity',
-              variable_name: 'ticket_quantity',
-              value: ticketQuantity || 1,
-            },
-            {
-              display_name: 'Customer Name',
-              variable_name: 'customer_name',
-              value: customerName || 'Guest',
-            },
-            {
-              display_name: 'Is Gift',
-              variable_name: 'is_gift',
-              value: isGift ? 'Yes' : 'No',
-            },
-            ...(isGift
-              ? [
-                  {
-                    display_name: 'Recipient Name',
-                    variable_name: 'recipient_name',
-                    value: recipientName || 'Not provided',
-                  },
-                  {
-                    display_name: 'Recipient Email',
-                    variable_name: 'recipient_email',
-                    value: recipientEmail || 'Not provided',
-                  },
-                ]
-              : []),
-            {
-              display_name: 'Subaccount Code',
-              variable_name: 'subaccount_code',
-              value: subaccountCode || 'None',
-            },
-          ],
-        },
-      },
+      paystackPayload,
       {
         headers: {
-          Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
           'Content-Type': 'application/json',
         },
       }
     );
 
-    if (!response.data.status) {
-      return res.status(400).json({
-        status: 'error',
-        message: response.data.message || 'Failed to initialize transaction.',
-      });
-    }
+    const { authorization_url, access_code, reference } = response.data.data;
 
-    // Return access_code to frontend
     res.json({
       status: 'success',
-      access_code: response.data.data.access_code,
-      reference: response.data.data.reference,
+      data: {
+        authorizationUrl: authorization_url,
+        accessCode: access_code,
+        reference,
+      },
     });
-  } catch (err) {
-    console.error('Initialization error:', err.response?.data || err.message);
+  } catch (error) {
+    console.error('Error initializing transaction:', error.message, error.stack);
+    const errorMessage = error.response?.data?.message || error.message;
     res.status(500).json({
       status: 'error',
-      message: `Server error during transaction initialization: ${err.message}`,
+      message: 'Failed to initialize transaction',
+      details: errorMessage,
     });
   }
 });
