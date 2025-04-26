@@ -1,88 +1,62 @@
 const express = require('express');
-const axios = require('axios');
+const Paystack = require('paystack-api');
 const router = express.Router();
 
-router.post('/', async (req, res) => {
-  try {
-    const {
-      email,
-      amount,
-      eventId,
-      eventTitle,
-      ticketQuantity,
-      customerName,
-      isGift,
-      recipientName,
-      recipientEmail,
-      subaccountCode,
-    } = req.body;
+const paystack = Paystack(process.env.PAYSTACK_SECRET_KEY);
 
-    // Validate required fields
-    if (!email || !amount || !eventId) {
-      console.log('Missing required fields:', req.body);
+// POST /api/initialize-transaction
+router.post('/', async (req, res) => {
+  const { email, amount, subaccount_code, firstName, lastName, phoneNumber, eventTitle, ticketQuantity } = req.body;
+
+  try {
+    // Validate input
+    if (!email || !amount || !subaccount_code) {
       return res.status(400).json({
         status: 'error',
-        message: 'Email, amount, and eventId are required',
+        message: 'Email, amount, and subaccount code are required',
       });
     }
 
-    // Validate PAYSTACK_SECRET_KEY
-    if (!process.env.PAYSTACK_SECRET_KEY) {
-      console.error('PAYSTACK_SECRET_KEY is not set');
-      return res.status(500).json({
+    // Check if subaccount_code is valid
+    if (subaccount_code === 'null') {
+      return res.status(400).json({
         status: 'error',
-        message: 'Server configuration error',
+        message: 'Invalid subaccount code',
       });
     }
 
-    // Prepare Paystack payload
-    const paystackPayload = {
-      email,
+    const transactionData = {
+      email: email || 'guest@example.com',
       amount: amount * 100, // Convert to kobo
-      callback_url: 'https://loudbox.vercel.app/thank-you',
+      callback_url: process.env.PAYSTACK_CALLBACK_URL || 'http://localhost:3000/order-summary',
       metadata: {
-        eventId,
-        eventTitle: eventTitle || 'Unknown Event',
-        ticketQuantity: ticketQuantity || 1,
-        customerName: customerName || 'Guest',
-        isGift: !!isGift,
-        recipientName: isGift ? recipientName : null,
-        recipientEmail: isGift ? recipientEmail : null,
-        subaccountCode: subaccountCode || null,
+        firstName,
+        lastName,
+        phoneNumber,
+        eventTitle,
+        ticketQuantity,
       },
     };
 
-    console.log('Initializing Paystack transaction:', paystackPayload);
+    // Add subaccount if valid
+    if (subaccount_code) {
+      transactionData.subaccount = subaccount_code;
+      transactionData.bearer = 'subaccount'; // Subaccount bears fees
+      transactionData.transaction_charge = amount * 100 * 0.1; // Example: 10% to subaccount
+    }
 
-    // Call Paystack API
-    const response = await axios.post(
-      'https://api.paystack.co/transaction/initialize',
-      paystackPayload,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    const { authorization_url, access_code, reference } = response.data.data;
+    const response = await paystack.transaction.initialize(transactionData);
 
     res.json({
       status: 'success',
-      data: {
-        authorizationUrl: authorization_url,
-        accessCode: access_code,
-        reference,
-      },
+      data: response.data,
     });
   } catch (error) {
-    console.error('Error initializing transaction:', error.message, error.stack);
-    const errorMessage = error.response?.data?.message || error.message;
+    console.error('Transaction initialization error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to initialize transaction',
-      details: errorMessage,
+      details: error.message,
     });
   }
 });
