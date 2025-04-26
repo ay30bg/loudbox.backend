@@ -37,7 +37,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/verify', verifyRoutes);
-app.use('/api/verify-payment', verifyPaymentRoutes);
+app.use('/api/verify-transaction', verifyPaymentRoutes);
 app.use('/api/initialize-transaction', initializeTransactionRoutes);
 
 app.get('/', (req, res) => {
