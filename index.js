@@ -7,9 +7,10 @@ dotenv.config();
 
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
+const initializeTransactionRoutes = require('./routes/initializeTransaction');
+console.log('initializeTransactionRoutes loaded:', initializeTransactionRoutes);
 const verifyRoutes = require('./routes/verify');
 const verifyPaymentRoutes = require('./routes/verifyPayment');
-const initializeTransactionRoutes = require('./routes/initializeTransaction');
 
 const app = express();
 
