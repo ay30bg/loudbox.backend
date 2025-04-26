@@ -20,26 +20,17 @@ router.get('/:reference', async (req, res) => {
     const response = await paystack.transaction.verify({ reference });
     console.log('Paystack verification response:', response);
 
-    if (response.data.status === 'success') {
-      res.json({
-        status: 'success',
-        data: response.data,
-      });
-    } else {
-      console.log('Verification failed:', response.data);
-      res.status(400).json({
-        status: 'error',
-        message: 'Transaction verification failed',
-        details: response.data,
-      });
-    }
+    res.json({
+      status: 'success',
+      data: response.data,
+    });
   } catch (error) {
     console.error('Transaction verification error:', {
       message: error.message,
       stack: error.stack,
       paystackResponse: error.response?.data,
     });
-    res.status(500).json({
+    res.status(error.response?.status || 500).json({
       status: 'error',
       message: 'Failed to verify transaction',
       details: error.response?.data?.message || error.message,
