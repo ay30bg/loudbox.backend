@@ -10,6 +10,7 @@ const ticketRoutes = require('./routes/tickets');
 const verifyRoutes = require('./routes/verify');
 const verifyPaymentRoutes = require('./routes/verifyPayment');
 const initializeTransactionRoutes = require('./routes/initializeTransaction');
+const emailRoutes = require('./routes/ticketRoutes');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/verify', verifyRoutes);
 app.use('/api/verify-transaction', verifyPaymentRoutes);
 app.use('/api/initialize-transaction', initializeTransactionRoutes);
+app.use('/api/email', emailRoutes); 
 
 app.get('/', (req, res) => {
   res.json({ message: 'Loudbox API' });
