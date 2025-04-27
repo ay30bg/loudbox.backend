@@ -5,24 +5,33 @@ const QRCode = require('qrcode');
 
 const router = express.Router();
 
-// POST /api/email/send-ticket-email
 router.post('/send-ticket-email', async (req, res) => {
+  // Debug environment variables
+  console.log('EMAIL_USER:', process.env.EMAIL_USER);
+  console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'Not set');
+
+  // Check for missing environment variables
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('Missing environment variables: EMAIL_USER or EMAIL_PASS');
+    return res.status(500).json({
+      error: 'Server configuration error',
+      details: 'Missing EMAIL_USER or EMAIL_PASS environment variables',
+    });
+  }
+
   const { ticketData, email } = req.body;
 
-  // Validate request body
   if (!ticketData || !email) {
     return res.status(400).json({ error: 'Missing ticketData or email' });
   }
 
   try {
-    // Generate QR code
     const qrCodeValue = `https://loudbox-backend.vercel.app/api/verify?ticketId=${encodeURIComponent(
       ticketData.ticketId
     )}&code=${encodeURIComponent(ticketData.transactionReference || 'N/A')}`;
     const canvas = createCanvas(200, 200);
     await QRCode.toCanvas(canvas, qrCodeValue);
 
-    // Email configuration
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -31,7 +40,6 @@ router.post('/send-ticket-email', async (req, res) => {
       },
     });
 
-    // Email content
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -54,12 +62,11 @@ router.post('/send-ticket-email', async (req, res) => {
       ],
     };
 
-    // Send email
     await transporter.sendMail(mailOptions);
     res.status(200).json({ message: 'Ticket emailed successfully' });
   } catch (error) {
     console.error('Error sending ticket email:', error);
-    res.status(500).json({ error: 'Failed to send ticket email' });
+    res.status(500).json({ error: 'Failed to send ticket email', details: error.message });
   }
 });
 
