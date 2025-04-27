@@ -51,7 +51,7 @@ router.post('/send-ticket-email', async (req, res) => {
           <p>Attached is your ticket. Please present it at the event.</p>
           <p><strong>Ticket ID:</strong> ${ticketData.ticketId}</p>
           <p><strong>Transaction Reference:</strong> ${ticketData.transactionReference}</p>
-          <p>Access your ticket online: <a href="https://loudbox.vercel.app/tickets/${ticketData.transactionReference}" style="color: #007bff;">View Ticket</a></p>
+          <p>Access your ticket online: <a href="https://loudbox.vercel.app/ticket/${ticketData.transactionReference}" style="color: #007bff;">View Ticket</a></p>
         </div>
       `,
       attachments: [
