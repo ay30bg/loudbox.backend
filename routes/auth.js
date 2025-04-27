@@ -150,7 +150,7 @@ router.post('/google-login', async (req, res) => {
 });
 
 // Verify JWT endpoint
-router.get('/verify', authMiddleware, (req, res) => {
+router.get('/verify-token', authMiddleware, (req, res) => {
   res.json({
     success: true,
     isAuthenticated: true,
