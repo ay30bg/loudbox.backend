@@ -26,6 +26,14 @@ const userSchema = new mongoose.Schema({
         type: String, // For Google profile picture
         required: false,
     },
-});
+    resetPasswordToken: {
+        type: String,
+        required: false,
+    },
+    resetPasswordExpires: {
+        type: Date,
+        required: false,
+    },
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
