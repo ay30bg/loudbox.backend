@@ -66,14 +66,10 @@ router.post('/', async (req, res) => {
 });
 
 // Fetch Events (for dropdown)
+
 router.get('/events', async (req, res) => {
     try {
-        // If using Event model
-        // const events = await Event.find();
-        // res.json(events.map((e) => ({ id: e._id, name: e.name })));
-        
-        // If no Event model, use mock data
-         const events = [
+        res.json([
             { id: '1', name: 'Davido Live In Concert' },
             { id: '2', name: 'Lungu Boy Tour' },
             { id: '3', name: 'Alakada Bad and Boujee' },
@@ -83,8 +79,7 @@ router.get('/events', async (req, res) => {
             { id: '7', name: 'Ravage Uprising' },
             { id: '8', name: 'Sabi Girl Concert' },
             { id: '9', name: 'Local Rappers' },
-        ];
-         res.json(events);
+        ]);
     } catch (error) {
         console.error('Error fetching events:', error);
         res.status(500).json({ message: 'Failed to fetch events', error: error.message });
