@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const SupportTicket = require('../models/SupportTicket');
-const Event = require('../models/Event'); // If using Event model
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
