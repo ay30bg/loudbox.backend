@@ -69,14 +69,22 @@ router.post('/', async (req, res) => {
 router.get('/events', async (req, res) => {
     try {
         // If using Event model
-        const events = await Event.find();
-        res.json(events.map((e) => ({ id: e._id, name: e.name })));
+        // const events = await Event.find();
+        // res.json(events.map((e) => ({ id: e._id, name: e.name })));
+        
         // If no Event model, use mock data
-        // const events = [
-        //     { id: '1', name: 'Concert A' },
-        //     { id: '2', name: 'Festival B' },
-        // ];
-        // res.json(events);
+         const events = [
+            { id: '1', name: 'Davido Live In Concert' },
+            { id: '2', name: 'Lungu Boy Tour' },
+            { id: '3', name: 'Alakada Bad and Boujee' },
+            { id: '4', name: 'Hellfest' },
+            { id: '5', name: 'Burna & Friends Concert' },
+            { id: '6', name: 'Afrobeats Festival' },
+            { id: '7', name: 'Ravage Uprising' },
+            { id: '8', name: 'Sabi Girl Concert' },
+            { id: '9', name: 'Local Rappers' },
+        ];
+         res.json(events);
     } catch (error) {
         console.error('Error fetching events:', error);
         res.status(500).json({ message: 'Failed to fetch events', error: error.message });
