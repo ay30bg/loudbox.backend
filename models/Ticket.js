@@ -17,10 +17,15 @@ const ticketSchema = new mongoose.Schema({
     lastName: { type: String },
     email: { type: String },
   },
-  status: { type: String, default: 'unused' },
+  status: {
+  type: String,
+  enum: ['unused', 'used', 'expired', 'canceled'],
+  default: 'unused',
+},
   createdAt: { type: Date, default: Date.now },
   ticketQuantity: { type: Number, default: 1 },
   totalPrice: { type: Number, default: 0 },
+  eventDate: { type: Date, required: true },
 });
 
 module.exports = mongoose.model('Ticket', ticketSchema);
